@@ -1,0 +1,30 @@
+apiVersion: apps/v1                     # API group/version where Deployment objects live
+kind: Deployment                        # Manages ReplicaSets, which keep the desired number of Pods running
+metadata:                               # Identifying info for the Deployment itself
+  name: nginx                           # Deployment name (no namespace, so it goes to "default")
+  labels:                               # Labels on the Deployment resource (for organizing/filtering)
+    project: roboshop                   # Which project this belongs to
+    tier: frontend                      # Application layer
+    component: frontend                 # Specific component name
+    purpose: deployment                 # Extra tag describing the resource's role
+spec:                                   # Desired state of the Deployment
+  replicas: {{ .Values.deployment.replicas }}   # Number of Pods; Helm fills this from values.yaml
+  selector:                             # How the Deployment finds the Pods it owns
+    matchLabels:                        # Pods must have ALL these labels to be managed
+      project: roboshop                 # Must match the Pod template label below
+      tier: frontend                    # Must match the Pod template label below
+      component: frontend               # Must match the Pod template label below
+      purpose: deployment               # Must match the Pod template label below
+  template:                             # Blueprint used to create each Pod
+    metadata:                           # Pod's identifying info
+      labels:                           # Pod labels; MUST match selector.matchLabels
+        project: roboshop               # Same as selector
+        tier: frontend                  # Same as selector
+        component: frontend             # Same as selector
+        purpose: deployment             # Same as selector
+    spec:                               # Desired state of each Pod
+      containers:                       # List of containers in the Pod
+      - name: nginx                     # Container name
+        image: nginx:{{ .Values.deployment.imageVersion }}   # Image tag injected by Helm from values.yaml
+        ports:                          # Ports the container exposes
+        - containerPort: 80             # nginx listens on port 80 inside the container

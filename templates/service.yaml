@@ -1,0 +1,21 @@
+---                                     # YAML document separator (allows multiple resources in one file)
+apiVersion: v1                          # Core API version, where Service objects live
+kind: Service                           # Stable network endpoint that load-balances traffic to Pods
+metadata:                               # Identifying info for the Service
+  name: nginx                           # Service name; also becomes its DNS name inside the cluster
+  labels:                               # Labels on the Service resource itself (for organizing/filtering)
+    project: roboshop                   # Which project this belongs to
+    tier: frontend                      # Application layer
+    component: frontend                 # Specific component name
+    purpose: deployment                 # Extra tag describing the resource
+spec:                                   # Desired state of the Service
+  type: {{ .Values.service.type }}      # ClusterIP / NodePort / LoadBalancer; Helm fills it from values.yaml
+  selector:                             # Sends traffic to Pods that have ALL these labels
+    project: roboshop                   # Must match the Deployment's Pod template labels
+    tier: frontend                      # Must match the Pod labels
+    component: frontend                 # Must match the Pod labels
+    purpose: deployment                 # Must match the Pod labels
+  ports:                                # Port mappings for the Service
+    - protocol: TCP                     # Transport protocol
+      port: 80                          # Port the Service listens on (clients connect here)
+      targetPort: 80                    # Port on the container where traffic is forwarded
